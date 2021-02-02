@@ -48,7 +48,10 @@ int hexVal(char hex) {
 }
 
 int hexToDecimal(char hex[], size_t size) {
-	// complete the function body
-	
-	return 0;
+    char* ptr;
+    int decimal = 0;
+    for (ptr = hex ; ptr < hex + size; ptr++) {
+        decimal = decimal*16 + hexVal(*ptr);
+    }
+    return decimal;
 }
