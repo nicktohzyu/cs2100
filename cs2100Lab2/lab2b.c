@@ -9,9 +9,9 @@ int main(void) {
 	char hex[31];
 	size_t len;
 
-	printf("Enter up to 30 hexadecimal characters: ");
-	fgets(hex, 31, stdin);
-	len = strlen(hex);
+	// printf("Enter up to 30 hexadecimal characters: ");
+	// fgets(hex, 31, stdin);
+	// len = strlen(hex);
 
 	/* End-of-Line Check */
 	if(hex[len-1] == '\n') {
@@ -19,8 +19,11 @@ int main(void) {
 		hex[len] = '\0';
 	}
 
-	printf("You entered: %s\n", hex);
-	printf("The value in decimal is: %d\n", hexToDecimal(hex, len));
+	// printf("You entered: %s\n", hex);
+	// printf("The value in decimal is: %d\n", hexToDecimal(hex, len));
+	printf("The value of fffffff in decimal is: %d\n", hexToDecimal("fffffff", 7));
+	printf("The value of 7ffffe in decimal is: %d\n", hexToDecimal("7ffffe", 6));
+	printf("The value of a in decimal is: %d\n", hexToDecimal("a", 1));
 
 	return 0;
 }
