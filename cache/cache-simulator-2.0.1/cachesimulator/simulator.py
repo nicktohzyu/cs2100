@@ -82,7 +82,7 @@ class Simulator(object):
         for index in cache_set_names:
             blocks = cache[index]
             table.rows[0].append(' '.join(
-                ','.join(map(str, entry['data'])) for entry in blocks))
+                '[' + ','.join(map(str, entry['data'])) + ']' for entry in blocks))
 
         print(table)
 
