@@ -39,12 +39,20 @@ class ReferenceCacheStatus(Enum):
 
     miss = 0
     hit = 1
+    cold = 2
+    conflict = 3
 
     # Define how reference statuses are displayed in simulation results
     def __str__(self):
         if self.value == ReferenceCacheStatus.hit.value:
             return 'HIT'
-        else:
+        elif self.value == ReferenceCacheStatus.cold.value:
+            return 'cold'
+        elif self.value == ReferenceCacheStatus.conflict.value:
+            return 'conflict'
+        elif self.value == ReferenceCacheStatus.miss.value:
             return 'miss'
+        else:
+            return 'error, invalid hit status'
 
     __repr__ = __str__

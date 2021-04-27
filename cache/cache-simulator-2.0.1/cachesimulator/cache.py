@@ -8,11 +8,16 @@ from cachesimulator.word_addr import WordAddress
 class Cache(dict):
 
     # Initializes the reference cache with a fixed number of sets
-    def __init__(self, cache=None, num_sets=None, num_index_bits=0):
+    def __init__(self, cache=None, num_sets=None, num_index_bits=0, num_blocks_per_set=1):
 
         # A list of recently ordered addresses, ordered from least-recently
         # used to most
+        self.num_blocks_per_set = num_blocks_per_set
         self.recently_used_addrs = []
+        self.num_hit = 0
+        self.num_cold = 0
+        self.num_conflict = 0
+        self.history = {}
 
         if cache is not None:
             self.update(cache)
@@ -21,6 +26,7 @@ class Cache(dict):
                 index = BinaryAddress(
                     word_addr=WordAddress(i), num_addr_bits=num_index_bits)
                 self[index] = []
+                self.history[index] = set()
 
     # Every time we see an address, place it at the top of the
     # list of recently-seen addresses
@@ -34,7 +40,7 @@ class Cache(dict):
 
     # Returns True if a block at the given index and tag exists in the cache,
     # indicating a hit; returns False otherwise, indicating a miss
-    def is_hit(self, addr_index, addr_tag):
+    def is_hit(self, addr_index, addr_tag) -> ReferenceCacheStatus:
 
         # Ensure that indexless fully associative caches are accessed correctly
         if addr_index is None:
@@ -46,9 +52,15 @@ class Cache(dict):
 
         for block in blocks:
             if block['tag'] == addr_tag:
-                return True
-
-        return False
+                self.num_hit += 1
+                return ReferenceCacheStatus.hit
+        if len(blocks) == self.num_blocks_per_set:
+            if addr_tag in self.history[addr_index]:
+                # was once in the set but not anymore
+                self.num_conflict += 1
+                return ReferenceCacheStatus.conflict
+        self.num_cold += 1
+        return ReferenceCacheStatus.cold
 
     # Iterate through the recently-used entries in reverse order for MRU
     def replace_block(self, blocks, replacement_policy, addr_index, new_entry):
@@ -72,6 +84,7 @@ class Cache(dict):
             blocks = self['0']
         else:
             blocks = self[addr_index]
+        self.history[addr_index].add(new_entry['tag'])
         # Replace MRU or LRU entry if number of blocks in set exceeds the limit
         if len(blocks) == num_blocks_per_set:
             self.replace_block(
@@ -87,11 +100,8 @@ class Cache(dict):
             self.mark_ref_as_last_seen(ref)
 
             # Record if the reference is already in the cache or not
-            if self.is_hit(ref.index, ref.tag):
-                # Give emphasis to hits in contrast to misses
-                ref.cache_status = ReferenceCacheStatus.hit
-            else:
-                ref.cache_status = ReferenceCacheStatus.miss
+            ref.cache_status = self.is_hit(ref.index, ref.tag)
+            if not ref.cache_status == ReferenceCacheStatus.hit:
                 self.set_block(
                     replacement_policy=replacement_policy,
                     num_blocks_per_set=num_blocks_per_set,

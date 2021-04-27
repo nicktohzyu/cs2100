@@ -108,7 +108,8 @@ class Simulator(object):
 
         cache = Cache(
             num_sets=num_sets,
-            num_index_bits=num_index_bits)
+            num_index_bits=num_index_bits,
+            num_blocks_per_set=num_blocks_per_set)
 
         cache.read_refs(
             num_blocks_per_set, num_words_per_block,
@@ -123,4 +124,8 @@ class Simulator(object):
         self.display_addr_refs(refs, table_width)
         print()
         self.display_cache(cache, table_width)
+        print()
+        print("hits: " + str(cache.num_hit))
+        print("conflict misses: " + str(cache.num_conflict))
+        print("cold misses: " + str(cache.num_cold))
         print()

@@ -13,7 +13,7 @@ def parse_cli_args():
     parser.add_argument(
         '--cache-size',
         type=int,
-        default=32,
+        default=64,
         help='the size of the cache in words')
 
     parser.add_argument(
